@@ -61,18 +61,11 @@
             'Dashboard': `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v9H3z"></path><path d="M14 3h7v5h-7z"></path><path d="M14 12h7v9h-7z"></path><path d="M3 16h7v5h-7z"></path></svg>`,
         };
 
-        // =========================================================================
-        // Configuração do Google Apps Script
-        // ! Substitua o URL abaixo pelo seu URL de Web App do Google Apps Script.
-        // =========================================================================
-        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbwtPuW2gaSQbkqws3_v5wo_nBsjrxsBNUIr8VBRB4ycbPYFIOpInhzmyr3Qo9cIXfX2/exec';
-
         // Array de objetos para representar os itens do menu.
         const menuItems = [
-            { name: 'Vendas', id: 'vendas' },
-            { name: 'Produtos', id: 'produtos' },
-            { name: 'Dashboard', id: 'dashboard' },
-            // Adicione mais itens aqui para futuras telas
+            { name: 'Vendas', id: 'Vendas.html' },
+            { name: 'Produtos', id: 'Produtos.html' },
+            { name: 'Dashboard', id: 'Dashboard.html' },
         ];
 
         // Referências aos elementos do DOM
@@ -83,8 +76,28 @@
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileOverlay = document.getElementById('mobile-overlay');
 
-        // Função para mostrar a tela correta com o conteúdo
-        async function showScreen(screenId, screenName) {
+        // Função para carregar o conteúdo de uma página HTML
+        async function loadPage(pageName) {
+            try {
+                // Exibe uma mensagem de carregamento
+                mainContent.innerHTML = `<div class="text-center text-gray-500 text-lg">Carregando ${pageName}...</div>`;
+                
+                const response = await fetch(pageName);
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar a página: ' + response.statusText);
+                }
+                const html = await response.text();
+                
+                // Injeta o HTML na área de conteúdo
+                mainContent.innerHTML = html;
+            } catch (error) {
+                mainContent.innerHTML = `<div class="text-red-600 text-center">Não foi possível carregar a página "${pageName}". Verifique se o arquivo está no repositório.</div>`;
+                console.error('Erro:', error);
+            }
+        }
+
+        // Função para mostrar a tela correta e atualizar o estado do menu
+        function showScreen(screenId, screenName) {
             // Atualiza o estado visual dos botões do menu
             document.querySelectorAll('.menu-item-button').forEach(btn => {
                 if (btn.dataset.screenId === screenId) {
@@ -96,164 +109,13 @@
                 }
             });
 
-            // Limpa o conteúdo e mostra um estado de carregamento
-            mainContent.innerHTML = `<div class="text-center text-gray-500 text-lg">Carregando dados de ${screenName}...</div>`;
+            // Chama a função para carregar o conteúdo do arquivo
+            loadPage(screenId);
 
-            // Chama a função de carregamento de dados correspondente à tela
-            switch (screenId) {
-                case 'vendas':
-                    await renderSalesScreen();
-                    break;
-                case 'produtos':
-                    await renderProductsScreen();
-                    break;
-                case 'dashboard':
-                    await renderDashboardScreen();
-                    break;
-                default:
-                    mainContent.innerHTML = `
-                        <h1 class="text-3xl font-bold text-gray-800 mb-4">${screenName}</h1>
-                        <p class="text-gray-600">Conteúdo para a página "${screenName}".</p>
-                    `;
-            }
-        }
-
-        // =========================================================================
-        // Funções para buscar e enviar dados ao Google Apps Script
-        // =========================================================================
-
-        async function fetchData(action, method = 'GET', data = null) {
-            const url = `${googleAppsScriptUrl}?action=${action}`;
-            const options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-
-            if (data) {
-                options.body = JSON.stringify(data);
-            }
-
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) {
-                    throw new Error(`Erro na rede: ${response.status} - ${response.statusText}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error(`Falha ao buscar dados:`, error);
-                mainContent.innerHTML = `<div class="text-red-600 text-center">Erro ao carregar os dados. Verifique a URL e a configuração do Google Apps Script. Detalhes: ${error.message}</div>`;
-                return null;
-            }
-        }
-
-        // =========================================================================
-        // Renderização de Conteúdo das Telas
-        // =========================================================================
-
-        async function renderSalesScreen() {
-            mainContent.innerHTML = `
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Nova Venda</h1>
-                    <form id="sale-form" class="space-y-4 p-6 bg-gray-100 rounded-2xl shadow-inner">
-                        <div>
-                            <label for="product-name" class="block text-sm font-medium text-gray-700">Nome do Produto</label>
-                            <input type="text" id="product-name" name="product" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700">Quantidade</label>
-                            <input type="number" id="quantity" name="quantity" required min="1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label for="sale-value" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
-                            <input type="number" id="sale-value" name="value" required step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Registrar Venda
-                        </button>
-                    </form>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Últimas Vendas</h2>
-                    <table id="sales-table" class="min-w-full divide-y divide-gray-200 rounded-xl overflow-hidden shadow-sm">
-                        <thead class="bg-gray-200">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            </tbody>
-                    </table>
-                </div>
-            `;
-            
-            const form = document.getElementById('sale-form');
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                
-                // Exibe uma mensagem de processamento
-                form.querySelector('button').disabled = true;
-                form.querySelector('button').textContent = 'Registrando...';
-
-                // Envia os dados para o Google Apps Script usando a função doPost
-                const result = await fetchData('addSale', 'POST', data);
-
-                if (result && result.status === 'success') {
-                    // Se o resultado for sucesso, limpa o formulário e recarrega os dados
-                    form.reset();
-                    alert('Venda registrada com sucesso!');
-                    await fetchAndDisplaySales();
-                } else {
-                    alert('Erro ao registrar venda. Tente novamente.');
-                }
-                
-                form.querySelector('button').disabled = false;
-                form.querySelector('button').textContent = 'Registrar Venda';
-            });
-
-            await fetchAndDisplaySales();
-        }
-
-        async function fetchAndDisplaySales() {
-            const salesTableBody = document.querySelector('#sales-table tbody');
-            salesTableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Carregando vendas...</td></tr>';
-
-            const salesData = await fetchData('getSales', 'GET');
-            
-            if (salesData && Array.isArray(salesData)) {
-                salesTableBody.innerHTML = '';
-                salesData.forEach(sale => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap">${sale.product}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${sale.quantity}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">R$ ${sale.value.toFixed(2)}</td>
-                    `;
-                    salesTableBody.appendChild(row);
-                });
-            } else {
-                 salesTableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Nenhuma venda encontrada.</td></tr>';
-            }
-        }
-
-
-        async function renderProductsScreen() {
-            mainContent.innerHTML = `
-                <h1 class="text-3xl font-bold text-gray-800 mb-4">Página de Produtos</h1>
-                <p class="text-gray-600">Aqui você pode gerenciar seu inventário de produtos. (Conteúdo a ser implementado).</p>
-            `;
-        }
-
-        async function renderDashboardScreen() {
-            mainContent.innerHTML = `
-                <h1 class="text-3xl font-bold text-gray-800 mb-4">Página do Dashboard</h1>
-                <p class="text-gray-600">Visão geral do sistema de vendas, com gráficos e métricas importantes como vendas diárias, produtos mais vendidos, etc. (Conteúdo a ser implementado).</p>
-            `;
+            // Fecha o menu mobile, se estiver aberto
+            mobileMenu.classList.remove('open');
+            mobileMenu.classList.add('closed');
+            mobileOverlay.classList.add('hidden');
         }
 
         // =========================================================================
@@ -270,10 +132,6 @@
             `;
             button.addEventListener('click', () => {
                 showScreen(item.id, item.name);
-                // Fecha o menu mobile após a seleção
-                mobileMenu.classList.remove('open');
-                mobileMenu.classList.add('closed');
-                mobileOverlay.classList.add('hidden');
             });
             return button;
         }
@@ -317,7 +175,7 @@
             });
 
             // Mostra a tela inicial
-            showScreen('vendas', 'Vendas');
+            showScreen('Vendas.html', 'Vendas');
         }
 
         // Inicia a aplicação após o carregamento da página
