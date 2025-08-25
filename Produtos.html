@@ -1,459 +1,457 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    /* Estilos CSS permanecem os mesmos */
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f0f2f5;
-      color: #333;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 5px;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: #3498db;
-    }
-    .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background-color: #27ae60;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-top: 10px;
-    }
-    .btn-submit:hover {
-      background-color: #219d54;
-    }
-    .btn-cancel {
-      background-color: #e74c3c;
-    }
-    .btn-cancel:hover {
-      background-color: #c0392b;
-    }
-    #statusMessage {
-      text-align: center;
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      display: none;
-    }
-    #statusMessage.success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
-    }
-    #statusMessage.error {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
-    }
-    .search-container {
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-    .search-container input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    .product-list-container {
-      margin-top: 20px;
-    }
-    .product-list-container h3 {
-      color: #34495e;
-      margin-bottom: 10px;
-    }
-    .product-list-container table {
-      width: 100%;
-      border-collapse: collapse;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .product-list-container th, .product-list-container td {
-      text-align: left;
-      padding: 12px 15px;
-      border-bottom: 1px solid #ddd;
-    }
-    .product-list-container th {
-      background-color: #3498db;
-      color: #fff;
-      font-weight: 500;
-    }
-    .product-list-container tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    .product-list-container tr:hover {
-      background-color: #eef;
-    }
-    .action-buttons {
-      display: flex;
-      gap: 5px;
-    }
-    .action-buttons button {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background-color 0.2s;
-    }
-    .action-buttons .edit-btn {
-      background-color: #3498db;
-    }
-    .action-buttons .edit-btn:hover {
-      background-color: #2980b9;
-    }
-    .action-buttons .delete-btn {
-      background-color: #e74c3c;
-    }
-    .action-buttons .delete-btn:hover {
-      background-color: #c0392b;
-    }
-    
-    /* ESTILOS PARA O MODAL DE CONFIRMAÇÃO */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-      padding-top: 150px;
-    }
-    .modal-content {
-      background-color: #fff;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 400px;
-      text-align: center;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .modal-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-    .modal-buttons .btn {
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-    }
-    .modal-buttons .btn-confirm {
-      background-color: #e74c3c;
-      color: #fff;
-    }
-    .modal-buttons .btn-confirm:hover {
-      background-color: #c0392b;
-    }
-    .modal-buttons .btn-cancel {
-      background-color: #bdc3c7;
-      color: #333;
-    }
-    .modal-buttons .btn-cancel:hover {
-      background-color: #95a5a6;
-    }
-  </style>
+  <base target="_top">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #27ae60;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+    .btn-submit:hover {
+      background-color: #219d54;
+    }
+    .btn-cancel {
+      background-color: #e74c3c;
+    }
+    .btn-cancel:hover {
+      background-color: #c0392b;
+    }
+    #statusMessage {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    #statusMessage.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    #statusMessage.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+    .search-container {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .product-list-container {
+      margin-top: 20px;
+    }
+    .product-list-container h3 {
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+    .product-list-container table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .product-list-container th, .product-list-container td {
+      text-align: left;
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    .product-list-container th {
+      background-color: #3498db;
+      color: #fff;
+      font-weight: 500;
+    }
+    .product-list-container tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .product-list-container tr:hover {
+      background-color: #eef;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .action-buttons button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.2s;
+    }
+    .action-buttons .edit-btn {
+      background-color: #3498db;
+    }
+    .action-buttons .edit-btn:hover {
+      background-color: #2980b9;
+    }
+    .action-buttons .delete-btn {
+      background-color: #e74c3c;
+    }
+    .action-buttons .delete-btn:hover {
+      background-color: #c0392b;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      padding-top: 150px;
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .modal-buttons .btn {
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+    }
+    .modal-buttons .btn-confirm {
+      background-color: #e74c3c;
+    }
+    .modal-buttons .btn-confirm:hover {
+      background-color: #c0392b;
+    }
+    .modal-buttons .btn-cancel {
+      background-color: #bdc3c7;
+      color: #333;
+    }
+    .modal-buttons .btn-cancel:hover {
+      background-color: #95a5a6;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Gerenciar Produtos</h2>
-    <form id="formularioProdutos">
-      <input type="hidden" id="idProduto" value="">
-      <div class="form-group">
-        <label for="nome">Nome do Produto</label>
-        <input type="text" id="nome" required>
-      </div>
-      <div class="form-group">
-        <label for="unidadeVenda">Unidade de Venda (un, kg, fardo, etc)</label>
-        <input type="text" id="unidadeVenda" required>
-      </div>
-      <div class="form-group">
-        <label for="preco">Preço (R$)</label>
-        <input type="number" id="preco" step="any" required>
-      </div>
-      <div class="form-group">
-        <label for="quantidade">Quantidade em Estoque</label>
-        <input type="number" id="quantidade" step="any" required>
-      </div>
-      <div class="form-group">
-        <label for="descricao">Descrição</label>
-        <input type="text" id="descricao">
-      </div>
-      <button type="submit" class="btn-submit">Salvar Produto</button>
-      <button type="button" class="btn-submit btn-cancel" id="btnCancelarEdicao" style="display: none;">Cancelar Edição</button>
-      <div id="statusMessage"></div>
-    </form>
-    
-    <div class="search-container">
-      <h3>Buscar e Gerenciar</h3>
-      <input type="text" id="campoBusca" placeholder="Buscar por nome do produto...">
-    </div>
-    
-    <div class="product-list-container">
-      <h3>Produtos Cadastrados</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Preço</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="listaProdutos">
-          </tbody>
-      </table>
-    </div>
-  </div>
+  <div class="container">
+    <h2>Gerenciar Produtos</h2>
+    <form id="formularioProdutos">
+      <input type="hidden" id="idProduto" value="">
+      <div class="form-group">
+        <label for="nome">Nome do Produto</label>
+        <input type="text" id="nome" required>
+      </div>
+      <div class="form-group">
+        <label for="unidadeVenda">Unidade de Venda (un, kg, fardo, etc)</label>
+        <input type="text" id="unidadeVenda" required>
+      </div>
+      <div class="form-group">
+        <label for="preco">Preço (R$)</label>
+        <input type="number" id="preco" step="any" required>
+      </div>
+      <div class="form-group">
+        <label for="quantidade">Quantidade em Estoque</label>
+        <input type="number" id="quantidade" step="any" required>
+      </div>
+      <div class="form-group">
+        <label for="descricao">Descrição</label>
+        <input type="text" id="descricao">
+      </div>
+      <button type="submit" class="btn-submit">Salvar Produto</button>
+      <button type="button" class="btn-submit btn-cancel" id="btnCancelarEdicao" style="display: none;">Cancelar Edição</button>
+      <div id="statusMessage"></div>
+    </form>
+    <div class="search-container">
+      <h3>Buscar e Gerenciar</h3>
+      <input type="text" id="campoBusca" placeholder="Buscar por nome do produto...">
+    </div>
+    <div class="product-list-container">
+      <h3>Produtos Cadastrados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="listaProdutos"></tbody>
+      </table>
+    </div>
+  </div>
 
-  <div id="deleteModal" class="modal">
-    <div class="modal-content">
-      <p>Tem certeza que deseja excluir este produto?</p>
-      <div class="modal-buttons">
-        <button class="btn btn-confirm" id="btnConfirmarExclusao">Confirmar</button>
-        <button class="btn btn-cancel" id="btnCancelarExclusao">Cancelar</button>
-      </div>
-    </div>
-  </div>
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <p>Tem certeza que deseja excluir este produto?</p>
+      <div class="modal-buttons">
+        <button class="btn btn-confirm" id="btnConfirmarExclusao">Confirmar</button>
+        <button class="btn btn-cancel" id="btnCancelarExclusao">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    // COLOCAR A URL DO SEU DEPLOYMENT AQUI
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCeWwzQHf_2aHwFCJZZSK7SyGKC45F2eW3vkhlGTCr5hdHfhVgXxTeSs6Kr-XtqxKvBw/exec';
-    var produtosData = [];
-    var idProdutoParaExcluir = null;
+  <script>
+    const SCRIPT_URL = ''; // Deixe esta URL vazia por enquanto
+    var produtosData = [];
+    var idProdutoParaExcluir = null;
 
-    document.addEventListener('DOMContentLoaded', function() {
-      // Chama a função para buscar os produtos usando fetch
-      carregarProdutos();
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      if(SCRIPT_URL === '') {
+        exibirStatus({ status: 'erro', mensagem: 'Por favor, cole a URL da API no código.' });
+        return;
+      }
+      carregarProdutos();
+    });
 
-    document.getElementById('formularioProdutos').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var idProduto = document.getElementById('idProduto').value;
-      var dadosProduto = {
-        idProduto: idProduto,
-        nome: document.getElementById('nome').value,
-        unidadeVenda: document.getElementById('unidadeVenda').value,
-        preco: document.getElementById('preco').value,
-        quantidade: document.getElementById('quantidade').value,
-        descricao: document.getElementById('descricao').value
-      };
-      
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'salvarProduto', data: dadosProduto })
-      })
-      .then(response => response.json())
-      .then(data => exibirStatus(data))
-      .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error }));
-    });
+    document.getElementById('formularioProdutos').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var idProduto = document.getElementById('idProduto').value;
+      var dadosProduto = {
+        idProduto: idProduto,
+        nome: document.getElementById('nome').value,
+        unidadeVenda: document.getElementById('unidadeVenda').value,
+        preco: document.getElementById('preco').value,
+        quantidade: document.getElementById('quantidade').value,
+        descricao: document.getElementById('descricao').value
+      };
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'salvarProduto', data: dadosProduto })
+      })
+      .then(response => response.json())
+      .then(data => exibirStatus(data))
+      .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error }));
+    });
 
-    document.getElementById('campoBusca').addEventListener('input', function(e) {
-      filtrarProdutos(e.target.value);
-    });
+    document.getElementById('campoBusca').addEventListener('input', function(e) {
+      filtrarProdutos(e.target.value);
+    });
 
-    document.getElementById('btnCancelarEdicao').addEventListener('click', function() {
-      limparFormulario();
-    });
+    document.getElementById('btnCancelarEdicao').addEventListener('click', function() {
+      limparFormulario();
+    });
 
-    document.getElementById('btnConfirmarExclusao').addEventListener('click', function() {
-      if (idProdutoParaExcluir) {
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'excluirProduto', data: { id: idProdutoParaExcluir } })
-        })
-        .then(response => response.json())
-        .then(data => exibirStatus(data))
-        .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error }));
-      }
-      esconderModal();
-    });
-    
-    document.getElementById('btnCancelarExclusao').addEventListener('click', function() {
-      esconderModal();
-    });
+    document.getElementById('btnConfirmarExclusao').addEventListener('click', function() {
+      if (idProdutoParaExcluir) {
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'excluirProduto', data: { id: idProdutoParaExcluir } })
+        })
+        .then(response => response.json())
+        .then(data => exibirStatus(data))
+        .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error }));
+      }
+      esconderModal();
+    });
+    
+    document.getElementById('btnCancelarExclusao').addEventListener('click', function() {
+      esconderModal();
+    });
 
-    function mostrarModal() {
-      document.getElementById('deleteModal').style.display = 'block';
-    }
+    function mostrarModal() {
+      document.getElementById('deleteModal').style.display = 'block';
+    }
 
-    function esconderModal() {
-      document.getElementById('deleteModal').style.display = 'none';
-      idProdutoParaExcluir = null;
-    }
+    function esconderModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      idProdutoParaExcluir = null;
+    }
 
-    function carregarProdutos() {
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'obterProdutos' })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'sucesso') {
-          produtosData = data.dados;
-          renderizarProdutos(produtosData);
-        } else {
-          exibirStatus(data);
-        }
-      })
-      .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro ao carregar produtos: ' + error }));
-    }
+    function carregarProdutos() {
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'obterProdutos' })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Falha na resposta da rede: ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.status === 'sucesso') {
+          produtosData = data.dados;
+          renderizarProdutos(produtosData);
+        } else {
+          exibirStatus(data);
+        }
+      })
+      .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro ao carregar produtos: ' + error.message }));
+    }
 
-    function renderizarProdutos(produtosParaExibir) {
-      var lista = document.getElementById('listaProdutos');
-      lista.innerHTML = '';
-      if (produtosParaExibir.length === 0) {
-        lista.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum produto encontrado.</td></tr>';
-        return;
-      }
-      produtosParaExibir.forEach(function(produto) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + produto[0] + '</td>' +
-                       '<td>' + produto[1] + '</td>' +
-                       '<td>R$' + parseFloat(produto[3]).toFixed(2) + '</td>' +
-                       '<td class="action-buttons">' +
-                         '<button class="edit-btn" data-id="' + produto[0] + '">Editar</button>' +
-                         '<button class="delete-btn" data-id="' + produto[0] + '">Excluir</button>' +
-                       '</td>';
-        lista.appendChild(tr);
-      });
-      adicionarEventosBotoes();
-    }
+    function renderizarProdutos(produtosParaExibir) {
+      var lista = document.getElementById('listaProdutos');
+      lista.innerHTML = '';
+      if (produtosParaExibir.length === 0) {
+        lista.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum produto encontrado.</td></tr>';
+        return;
+      }
+      produtosParaExibir.forEach(function(produto) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + produto[0] + '</td>' +
+                       '<td>' + produto[1] + '</td>' +
+                       '<td>R$' + parseFloat(produto[3]).toFixed(2) + '</td>' +
+                       '<td class="action-buttons">' +
+                       '<button class="edit-btn" data-id="' + produto[0] + '">Editar</button>' +
+                       '<button class="delete-btn" data-id="' + produto[0] + '">Excluir</button>' +
+                       '</td>';
+        lista.appendChild(tr);
+      });
+      adicionarEventosBotoes();
+    }
 
-    function filtrarProdutos(termo) {
-      var termoNormalizado = termo.toLowerCase().trim();
-      var produtosFiltrados = produtosData.filter(function(produto) {
-        return produto[1].toLowerCase().includes(termoNormalizado);
-      });
-      renderizarProdutos(produtosFiltrados);
-    }
+    function filtrarProdutos(termo) {
+      var termoNormalizado = termo.toLowerCase().trim();
+      var produtosFiltrados = produtosData.filter(function(produto) {
+        return produto[1].toLowerCase().includes(termoNormalizado);
+      });
+      renderizarProdutos(produtosFiltrados);
+    }
 
-    function adicionarEventosBotoes() {
-      var botoesEditar = document.querySelectorAll('.edit-btn');
-      botoesEditar.forEach(function(botao) {
-        botao.addEventListener('click', function() {
-          var id = this.dataset.id;
-          fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'obterProdutoPorId', data: { id: id } })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'sucesso') {
-              carregarProdutoParaEdicao(data.dados);
-            } else {
-              exibirStatus(data);
-            }
-          })
-          .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro ao carregar produto: ' + error }));
-        });
-      });
+    function adicionarEventosBotoes() {
+      var botoesEditar = document.querySelectorAll('.edit-btn');
+      botoesEditar.forEach(function(botao) {
+        botao.addEventListener('click', function() {
+          var id = this.dataset.id;
+          fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'obterProdutoPorId', data: { id: id } })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'sucesso') {
+              carregarProdutoParaEdicao(data.dados);
+            } else {
+              exibirStatus(data);
+            }
+          })
+          .catch(error => exibirStatus({ status: 'erro', mensagem: 'Erro ao carregar produto: ' + error }));
+        });
+      });
 
-      var botoesExcluir = document.querySelectorAll('.delete-btn');
-      botoesExcluir.forEach(function(botao) {
-        botao.addEventListener('click', function() {
-          idProdutoParaExcluir = this.dataset.id;
-          mostrarModal();
-        });
-      });
-    }
+      var botoesExcluir = document.querySelectorAll('.delete-btn');
+      botoesExcluir.forEach(function(botao) {
+        botao.addEventListener('click', function() {
+          idProdutoParaExcluir = this.dataset.id;
+          mostrarModal();
+        });
+      });
+    }
 
-    function carregarProdutoParaEdicao(produto) {
-      if (produto) {
-        document.getElementById('idProduto').value = produto[0];
-        document.getElementById('nome').value = produto[1];
-        document.getElementById('unidadeVenda').value = produto[2];
-        document.getElementById('preco').value = produto[3];
-        document.getElementById('quantidade').value = produto[4];
-        document.getElementById('descricao').value = produto[5];
-        document.querySelector('.btn-submit').textContent = 'Atualizar Produto';
-        document.getElementById('btnCancelarEdicao').style.display = 'inline-block';
-      } else {
-        exibirStatus({ status: 'erro', mensagem: 'Produto não encontrado.' });
-      }
-    }
+    function carregarProdutoParaEdicao(produto) {
+      if (produto) {
+        document.getElementById('idProduto').value = produto[0];
+        document.getElementById('nome').value = produto[1];
+        document.getElementById('unidadeVenda').value = produto[2];
+        document.getElementById('preco').value = produto[3];
+        document.getElementById('quantidade').value = produto[4];
+        document.getElementById('descricao').value = produto[5];
+        document.querySelector('.btn-submit').textContent = 'Atualizar Produto';
+        document.getElementById('btnCancelarEdicao').style.display = 'inline-block';
+      } else {
+        exibirStatus({ status: 'erro', mensagem: 'Produto não encontrado.' });
+      }
+    }
 
-    function limparFormulario() {
-      document.getElementById('idProduto').value = '';
-      document.getElementById('formularioProdutos').reset();
-      document.querySelector('.btn-submit').textContent = 'Salvar Produto';
-      document.getElementById('btnCancelarEdicao').style.display = 'none';
-      exibirStatus({ status: 'info', mensagem: 'Edição cancelada.' });
-    }
+    function limparFormulario() {
+      document.getElementById('idProduto').value = '';
+      document.getElementById('formularioProdutos').reset();
+      document.querySelector('.btn-submit').textContent = 'Salvar Produto';
+      document.getElementById('btnCancelarEdicao').style.display = 'none';
+      exibirStatus({ status: 'info', mensagem: 'Edição cancelada.' });
+    }
 
-    function exibirStatus(resposta) {
-      var statusMessage = document.getElementById('statusMessage');
-      statusMessage.textContent = resposta.mensagem;
-      statusMessage.className = 'message';
-      if (resposta.status) {
-        statusMessage.classList.add(resposta.status);
-      }
-      statusMessage.style.display = 'block';
-      setTimeout(function() {
-        statusMessage.style.display = 'none';
-        if (resposta.status === 'sucesso') {
-          limparFormulario();
-          carregarProdutos();
-        }
-      }, 3000);
-    }
-  </script>
+    function exibirStatus(resposta) {
+      var statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = resposta.mensagem;
+      statusMessage.className = 'message';
+      if (resposta.status) {
+        statusMessage.classList.add(resposta.status);
+      }
+      statusMessage.style.display = 'block';
+      setTimeout(function() {
+        statusMessage.style.display = 'none';
+        if (resposta.status === 'sucesso') {
+          limparFormulario();
+          carregarProdutos();
+        }
+      }, 3000);
+    }
+  </script>
 </body>
-
 </html>
