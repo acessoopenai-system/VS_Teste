@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Vendas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para a transição suave do menu mobile */
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .mobile-menu.closed {
+            transform: translateX(-100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <div class="flex">
+        <aside id="desktop-sidebar" class="hidden md:flex flex-col w-64 bg-gray-800 text-white shadow-lg rounded-r-2xl h-screen fixed">
+            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700">
+                Sistema de Vendas
+            </div>
+            <nav id="desktop-nav" class="mt-6 flex-1">
+                </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 md:ml-64 overflow-y-auto">
+            <div id="header-container" class="md:hidden p-4 mb-4">
+                </div>
+            <div id="main-content" class="bg-white rounded-2xl shadow-xl p-6 md:p-10 min-h-[calc(100vh-4rem)]">
+                </div>
+        </main>
+    </div>
+
+    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 w-64 h-full bg-gray-800 text-white shadow-lg z-50 closed">
+        <div class="p-6 flex justify-between items-center border-b border-gray-700">
+            <span class="text-2xl font-bold">Menu</span>
+            <button id="close-mobile-menu" class="p-1 rounded-full hover:bg-gray-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <nav id="mobile-nav" class="mt-6 flex flex-col">
+            </nav>
+    </div>
+
+    <div id="mobile-overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden md:hidden"></div>
+
+    <script>
+        // Ícones SVG para o menu. Você pode usar ícones do Lucide ou Font Awesome, mas SVG é mais leve.
+        const icons = {
+            'Vendas': `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
+            'Produtos': `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8H3a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path><path d="M3 10v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-14a2 2 0 0 0-2 2z"></path><rect x="1" y="4" width="22" height="6" rx="2" ry="2"></rect><rect x="1" y="14" width="22" height="6" rx="2" ry="2"></rect></svg>`,
+            'Dashboard': `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v9H3z"></path><path d="M14 3h7v5h-7z"></path><path d="M14 12h7v9h-7z"></path><path d="M3 16h7v5h-7z"></path></svg>`,
+        };
+
+        // =========================================================================
+        // Configuração do Google Apps Script
+        // ! Substitua o URL abaixo pelo seu URL de Web App do Google Apps Script.
+        // =========================================================================
+        const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbwtPuW2gaSQbkqws3_v5wo_nBsjrxsBNUIr8VBRB4ycbPYFIOpInhzmyr3Qo9cIXfX2/exec';
+
+        // Array de objetos para representar os itens do menu.
+        const menuItems = [
+            { name: 'Vendas', id: 'vendas' },
+            { name: 'Produtos', id: 'produtos' },
+            { name: 'Dashboard', id: 'dashboard' },
+            // Adicione mais itens aqui para futuras telas
+        ];
+
+        // Referências aos elementos do DOM
+        const mainContent = document.getElementById('main-content');
+        const desktopNav = document.getElementById('desktop-nav');
+        const mobileNav = document.getElementById('mobile-nav');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        // Função para mostrar a tela correta com o conteúdo
+        async function showScreen(screenId, screenName) {
+            // Atualiza o estado visual dos botões do menu
+            document.querySelectorAll('.menu-item-button').forEach(btn => {
+                if (btn.dataset.screenId === screenId) {
+                    btn.classList.add('bg-indigo-600');
+                    btn.classList.remove('hover:bg-gray-700');
+                } else {
+                    btn.classList.remove('bg-indigo-600');
+                    btn.classList.add('hover:bg-gray-700');
+                }
+            });
+
+            // Limpa o conteúdo e mostra um estado de carregamento
+            mainContent.innerHTML = `<div class="text-center text-gray-500 text-lg">Carregando dados de ${screenName}...</div>`;
+
+            // Chama a função de carregamento de dados correspondente à tela
+            switch (screenId) {
+                case 'vendas':
+                    await renderSalesScreen();
+                    break;
+                case 'produtos':
+                    await renderProductsScreen();
+                    break;
+                case 'dashboard':
+                    await renderDashboardScreen();
+                    break;
+                default:
+                    mainContent.innerHTML = `
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">${screenName}</h1>
+                        <p class="text-gray-600">Conteúdo para a página "${screenName}".</p>
+                    `;
+            }
+        }
+
+        // =========================================================================
+        // Funções para buscar e enviar dados ao Google Apps Script
+        // =========================================================================
+
+        async function fetchData(action, method = 'GET', data = null) {
+            const url = `${googleAppsScriptUrl}?action=${action}`;
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`Erro na rede: ${response.status} - ${response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`Falha ao buscar dados:`, error);
+                mainContent.innerHTML = `<div class="text-red-600 text-center">Erro ao carregar os dados. Verifique a URL e a configuração do Google Apps Script. Detalhes: ${error.message}</div>`;
+                return null;
+            }
+        }
+
+        // =========================================================================
+        // Renderização de Conteúdo das Telas
+        // =========================================================================
+
+        async function renderSalesScreen() {
+            mainContent.innerHTML = `
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">Nova Venda</h1>
+                    <form id="sale-form" class="space-y-4 p-6 bg-gray-100 rounded-2xl shadow-inner">
+                        <div>
+                            <label for="product-name" class="block text-sm font-medium text-gray-700">Nome do Produto</label>
+                            <input type="text" id="product-name" name="product" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700">Quantidade</label>
+                            <input type="number" id="quantity" name="quantity" required min="1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label for="sale-value" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+                            <input type="number" id="sale-value" name="value" required step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Registrar Venda
+                        </button>
+                    </form>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Últimas Vendas</h2>
+                    <table id="sales-table" class="min-w-full divide-y divide-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+            `;
+            
+            const form = document.getElementById('sale-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Exibe uma mensagem de processamento
+                form.querySelector('button').disabled = true;
+                form.querySelector('button').textContent = 'Registrando...';
+
+                // Envia os dados para o Google Apps Script usando a função doPost
+                const result = await fetchData('addSale', 'POST', data);
+
+                if (result && result.status === 'success') {
+                    // Se o resultado for sucesso, limpa o formulário e recarrega os dados
+                    form.reset();
+                    alert('Venda registrada com sucesso!');
+                    await fetchAndDisplaySales();
+                } else {
+                    alert('Erro ao registrar venda. Tente novamente.');
+                }
+                
+                form.querySelector('button').disabled = false;
+                form.querySelector('button').textContent = 'Registrar Venda';
+            });
+
+            await fetchAndDisplaySales();
+        }
+
+        async function fetchAndDisplaySales() {
+            const salesTableBody = document.querySelector('#sales-table tbody');
+            salesTableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Carregando vendas...</td></tr>';
+
+            const salesData = await fetchData('getSales', 'GET');
+            
+            if (salesData && Array.isArray(salesData)) {
+                salesTableBody.innerHTML = '';
+                salesData.forEach(sale => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${sale.product}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${sale.quantity}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">R$ ${sale.value.toFixed(2)}</td>
+                    `;
+                    salesTableBody.appendChild(row);
+                });
+            } else {
+                 salesTableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Nenhuma venda encontrada.</td></tr>';
+            }
+        }
+
+
+        async function renderProductsScreen() {
+            mainContent.innerHTML = `
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">Página de Produtos</h1>
+                <p class="text-gray-600">Aqui você pode gerenciar seu inventário de produtos. (Conteúdo a ser implementado).</p>
+            `;
+        }
+
+        async function renderDashboardScreen() {
+            mainContent.innerHTML = `
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">Página do Dashboard</h1>
+                <p class="text-gray-600">Visão geral do sistema de vendas, com gráficos e métricas importantes como vendas diárias, produtos mais vendidos, etc. (Conteúdo a ser implementado).</p>
+            `;
+        }
+
+        // =========================================================================
+        // Funções de Inicialização e Lógica do Menu
+        // =========================================================================
+
+        function createMenuItem(item) {
+            const button = document.createElement('button');
+            button.className = `menu-item-button flex items-center w-full px-6 py-3 space-x-3 transition-colors duration-200 ease-in-out hover:bg-gray-700`;
+            button.dataset.screenId = item.id;
+            button.innerHTML = `
+                ${icons[item.name]}
+                <span class="text-lg">${item.name}</span>
+            `;
+            button.addEventListener('click', () => {
+                showScreen(item.id, item.name);
+                // Fecha o menu mobile após a seleção
+                mobileMenu.classList.remove('open');
+                mobileMenu.classList.add('closed');
+                mobileOverlay.classList.add('hidden');
+            });
+            return button;
+        }
+
+        function setupMenu() {
+            const headerContainer = document.getElementById('header-container');
+
+            // Cria o botão do menu mobile e o título
+            headerContainer.innerHTML = `
+                <div class="flex items-center space-x-4">
+                    <button id="mobile-menu-button" class="p-2 text-gray-800 rounded-full bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">Sistema de Vendas</h1>
+                </div>
+            `;
+            document.getElementById('mobile-menu-button').addEventListener('click', () => {
+                mobileMenu.classList.remove('closed');
+                mobileMenu.classList.add('open');
+                mobileOverlay.classList.remove('hidden');
+            });
+            document.getElementById('close-mobile-menu').addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenu.classList.add('closed');
+                mobileOverlay.classList.add('hidden');
+            });
+            mobileOverlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenu.classList.add('closed');
+                mobileOverlay.classList.add('hidden');
+            });
+
+            // Popula os menus com os botões
+            menuItems.forEach(item => {
+                desktopNav.appendChild(createMenuItem(item));
+                mobileNav.appendChild(createMenuItem(item));
+            });
+
+            // Mostra a tela inicial
+            showScreen('vendas', 'Vendas');
+        }
+
+        // Inicia a aplicação após o carregamento da página
+        window.onload = setupMenu;
+
+    </script>
+</body>
+</html>
