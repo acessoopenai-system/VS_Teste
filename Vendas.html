@@ -1,254 +1,219 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    /* O CSS permanece o mesmo, sem alterações */
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f0f2f5;
-      color: #333;
-      padding: 20px;
-    }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 5px;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: #3498db;
-    }
-    .form-group .half {
-      display: flex;
-      justify-content: space-between;
-    }
-    .form-group .half > div {
-      width: 48%;
-    }
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background-color: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .btn-primary:hover {
-      background-color: #2980b9;
-    }
-    .message {
-      text-align: center;
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .message.success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
-    }
-    .message.error {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
-    }
-  </style>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #btnLancarVenda {
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        #btnLancarVenda:hover {
+            background-color: #219d54;
+        }
+        #statusMessage {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        #statusMessage.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        #statusMessage.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Lançar Nova Venda</h2>
-    <form id="formularioVendas">
-      <div class="form-group">
-        <label for="item">Produto</label>
-        <select id="item" name="item" required>
-          <option value="">Carregando produtos...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="quantidadeVendida">Quantidade Vendida</label>
-        <input type="number" id="quantidadeVendida" name="quantidadeVendida" step="any" required>
-      </div>
-      <div class="form-group">
-        <label for="subtotal">Subtotal</label>
-        <input type="number" id="subtotal" name="subtotal" step="any" readonly>
-      </div>
-      <div class="form-group half">
-        <div>
-          <label for="descontoPercentual">Desconto (%)</label>
-          <input type="number" id="descontoPercentual" name="descontoPercentual" step="any" value="0">
-        </div>
-        <div>
-          <label for="descontoReal">Desconto (R$)</label>
-          <input type="number" id="descontoReal" name="descontoReal" step="any" value="0">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="totalComDesconto">Total com Desconto</label>
-        <input type="number" id="totalComDesconto" name="totalComDesconto" step="any" readonly>
-      </div>
-      <button type="submit" class="btn-primary">Registrar Venda</button>
-      <div id="statusMessage" class="message" style="display: none;"></div>
-    </form>
-  </div>
+    <div class="container">
+        <h2>Lançar Nova Venda</h2>
+        <div class="form-group">
+            <label for="produto">Produto</label>
+            <select id="produto"></select>
+        </div>
+        <div class="form-group">
+            <label for="quantidade">Quantidade Vendida</label>
+            <input type="number" id="quantidade" step="any">
+        </div>
+        <div class="form-group">
+            <label for="subtotal">Subtotal</label>
+            <input type="text" id="subtotal" readonly>
+        </div>
+        <div class="form-group">
+            <label for="descontoPorcentagem">Desconto (%)</label>
+            <input type="number" id="descontoPorcentagem" value="0" step="any">
+        </div>
+        <div class="form-group">
+            <label for="descontoReais">Desconto (R$)</label>
+            <input type="number" id="descontoReais" value="0" step="any">
+        </div>
+        <div class="form-group">
+            <label for="totalComDesconto">Total com Desconto</label>
+            <input type="text" id="totalComDesconto" readonly>
+        </div>
+        <button id="btnLancarVenda">Registrar Venda</button>
+        <div id="statusMessage"></div>
+    </div>
+    <script>
+        const SCRIPT_URL = ''; // Cole a URL da API aqui
+        var produtos = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            if(SCRIPT_URL === '') {
+                exibirStatus({ status: 'error', mensagem: 'Por favor, cole a URL da API no código.' });
+                return;
+            }
+            carregarProdutos();
+        });
 
-  <script>
-    // COLOCAR A URL DO SEU DEPLOYMENT AQUI
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCeWwzQHf_2aHwFCJZZSK7SyGKC45F2eW3vkhlGTCr5hdHfhVgXxTeSs6Kr-XtqxKvBw/exec';
-    var produtos;
+        document.getElementById('produto').addEventListener('change', atualizarValores);
+        document.getElementById('quantidade').addEventListener('input', atualizarValores);
+        document.getElementById('descontoPorcentagem').addEventListener('input', atualizarValores);
+        document.getElementById('descontoReais').addEventListener('input', atualizarValores);
 
-    document.addEventListener('DOMContentLoaded', function() {
-      // Chama a função para buscar os produtos usando fetch
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'obterProdutos' })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'sucesso') {
-          popularProdutos(data.dados);
-        } else {
-          exibirStatus(data);
-        }
-      })
-      .catch(error => {
-        exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error });
-      });
-    });
+        document.getElementById('btnLancarVenda').addEventListener('click', function() {
+            const produtoSelecionado = document.getElementById('produto').value;
+            const quantidade = parseFloat(document.getElementById('quantidade').value);
+            const total = parseFloat(document.getElementById('totalComDesconto').value.replace(',', '.'));
+            
+            if (!produtoSelecionado || isNaN(quantidade) || quantidade <= 0) {
+                exibirStatus({ status: 'error', mensagem: 'Por favor, preencha o produto e a quantidade.' });
+                return;
+            }
 
-    function popularProdutos(listaProdutos) {
-      produtos = listaProdutos;
-      var select = document.getElementById('item');
-      select.innerHTML = '<option value="">Selecione um produto</option>';
-      produtos.forEach(function(produto) {
-        var option = document.createElement('option');
-        option.value = produto[1];
-        option.text = produto[1];
-        select.appendChild(option);
-      });
-    }
+            const dadosVenda = {
+                produto: produtoSelecionado,
+                quantidade: quantidade,
+                total: total
+            };
 
-    var formulario = document.getElementById('formularioVendas');
-    var selectProduto = document.getElementById('item');
-    var inputQuantidade = document.getElementById('quantidadeVendida');
-    var inputSubtotal = document.getElementById('subtotal');
-    var inputDescontoPercentual = document.getElementById('descontoPercentual');
-    var inputDescontoReal = document.getElementById('descontoReal');
-    var inputTotalComDesconto = document.getElementById('totalComDesconto');
-    var statusMessage = document.getElementById('statusMessage');
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'lancarVenda', data: dadosVenda })
+            })
+            .then(response => response.json())
+            .then(data => exibirStatus(data))
+            .catch(error => exibirStatus({ status: 'error', mensagem: 'Erro de comunicação: ' + error }));
+        });
 
-    formulario.addEventListener('submit', function(e) {
-      e.preventDefault();
-      var dadosVenda = {
-        itens: selectProduto.value,
-        quantidadeVendida: inputQuantidade.value,
-        subtotal: inputSubtotal.value,
-        descontoPercentual: inputDescontoPercentual.value,
-        descontoReal: inputDescontoReal.value,
-        totalComDesconto: inputTotalComDesconto.value
-      };
-      
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'lancarVenda', data: dadosVenda })
-      })
-      .then(response => response.json())
-      .then(data => exibirStatus(data))
-      .catch(error => {
-        exibirStatus({ status: 'erro', mensagem: 'Erro de comunicação: ' + error });
-      });
-    });
+        function carregarProdutos() {
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'obterProdutos' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sucesso') {
+                    const select = document.getElementById('produto');
+                    select.innerHTML = '';
+                    if (data.dados.length === 0) {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Nenhum produto cadastrado';
+                        select.appendChild(option);
+                        return;
+                    }
+                    data.dados.forEach(p => {
+                        const [id, nome, unidadeVenda, preco] = p;
+                        produtos[nome] = { preco: preco, id: id };
+                        const option = document.createElement('option');
+                        option.value = nome;
+                        option.textContent = `${nome} (R$${preco.toFixed(2).replace('.', ',')})`;
+                        select.appendChild(option);
+                    });
+                    atualizarValores();
+                } else {
+                    exibirStatus(data);
+                }
+            })
+            .catch(error => exibirStatus({ status: 'error', mensagem: 'Erro ao carregar produtos: ' + error }));
+        }
 
-    function calcularTotal() {
-      var produtoSelecionado = produtos.find(function(p) {
-        return p[1] === selectProduto.value;
-      });
+        function atualizarValores() {
+            const produtoSelecionado = document.getElementById('produto').value;
+            const quantidade = parseFloat(document.getElementById('quantidade').value);
+            const preco = produtos[produtoSelecionado] ? produtos[produtoSelecionado].preco : 0;
+            const subtotal = quantidade * preco;
+            
+            document.getElementById('subtotal').value = subtotal.toFixed(2).replace('.', ',');
 
-      if (!produtoSelecionado) return;
+            const descontoPorcentagem = parseFloat(document.getElementById('descontoPorcentagem').value) || 0;
+            const descontoReais = parseFloat(document.getElementById('descontoReais').value) || 0;
+            
+            const totalComDesconto = subtotal - (subtotal * (descontoPorcentagem / 100)) - descontoReais;
+            document.getElementById('totalComDesconto').value = totalComDesconto.toFixed(2).replace('.', ',');
+        }
 
-      var preco = parseFloat(produtoSelecionado[3]);
-      var quantidade = parseFloat(inputQuantidade.value) || 0;
-      var subtotal = preco * quantidade;
-
-      var descontoPercentual = parseFloat(inputDescontoPercentual.value) || 0;
-      var descontoReal = parseFloat(inputDescontoReal.value) || 0;
-      
-      var total = subtotal;
-
-      if (descontoPercentual > 0) {
-        descontoReal = subtotal * (descontoPercentual / 100);
-        inputDescontoReal.value = descontoReal.toFixed(2);
-      } else if (descontoReal > 0) {
-        inputDescontoPercentual.value = (descontoReal / subtotal * 100).toFixed(2);
-      }
-      
-      total = subtotal - descontoReal;
-
-      inputSubtotal.value = subtotal.toFixed(2);
-      inputTotalComDesconto.value = total.toFixed(2);
-    }
-
-    inputQuantidade.addEventListener('input', calcularTotal);
-    inputDescontoPercentual.addEventListener('input', function() {
-      inputDescontoReal.value = 0;
-      calcularTotal();
-    });
-    inputDescontoReal.addEventListener('input', function() {
-      inputDescontoPercentual.value = 0;
-      calcularTotal();
-    });
-    selectProduto.addEventListener('change', calcularTotal);
-
-    function exibirStatus(resposta) {
-      statusMessage.style.display = 'block';
-      if (resposta.status === 'sucesso') {
-        statusMessage.classList.remove('error');
-        statusMessage.classList.add('success');
-        statusMessage.textContent = resposta.mensagem;
-        formulario.reset();
-        inputSubtotal.value = '';
-        inputTotalComDesconto.value = '';
-      } else {
-        statusMessage.classList.remove('success');
-        statusMessage.classList.add('error');
-        statusMessage.textContent = 'Erro: ' + resposta.mensagem;
-      }
-    }
-  </script>
+        function exibirStatus(resposta) {
+            var statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = resposta.mensagem;
+            statusMessage.className = '';
+            if (resposta.status) {
+                statusMessage.classList.add(resposta.status);
+            }
+            statusMessage.style.display = 'block';
+            setTimeout(function() {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+    </script>
 </body>
-
 </html>
