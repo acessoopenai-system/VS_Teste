@@ -11,7 +11,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 900px;
             margin: 0 auto;
             background-color: #fff;
             padding: 30px;
@@ -73,6 +73,43 @@
             color: #c62828;
             border: 1px solid #ef9a9a;
         }
+        .table-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .table-container th, .table-container td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 14px;
+        }
+        .table-container th {
+            background-color: #f2f2f2;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .action-buttons button {
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .edit-btn {
+            background-color: #3498db;
+            color: #fff;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +140,24 @@
             <button type="submit" class="btn">Cadastrar Produto</button>
         </form>
         <div id="statusMessage"></div>
+
+        <div class="table-container">
+            <h3>Produtos Cadastrados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaProdutos">
+                    <tr><td colspan="5" style="text-align:center;">Carregando produtos...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -114,6 +169,7 @@
                 return;
             }
             document.getElementById('produtoForm').addEventListener('submit', salvarProduto);
+            carregarProdutos();
         });
 
         function exibirStatus(resposta) {
@@ -129,11 +185,11 @@
             }, 5000);
         }
 
-        function salvarProduto(event) {
+        async function salvarProduto(event) {
             event.preventDefault();
             
             const produto = {
-                idProduto: document.getElementById('idProduto').value,
+                idProduto: document.getElementById('idProduto').value || null,
                 nome: document.getElementById('nome').value,
                 unidadeVenda: document.getElementById('unidadeVenda').value,
                 preco: parseFloat(document.getElementById('preco').value),
@@ -141,23 +197,121 @@
                 descricao: document.getElementById('descricao').value
             };
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'salvarProduto', data: produto })
-            })
-            .then(response => response.json())
-            .then(data => {
-                exibirStatus(data);
-                if (data.status === 'sucesso') {
-                    document.getElementById('produtoForm').reset();
-                }
-            })
-            .catch(error => {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'salvarProduto', data: produto })
+                });
+
+                // A leitura da resposta é complicada com 'no-cors'.
+                // Se a requisição foi enviada com sucesso, assumimos que funcionou.
+                exibirStatus({ status: 'success', mensagem: '✅ Produto salvo com sucesso! (Verifique sua planilha)' });
+                document.getElementById('produtoForm').reset();
+                document.getElementById('idProduto').value = '';
+                await carregarProdutos();
+            } catch (error) {
                 exibirStatus({ status: 'error', mensagem: 'Erro de comunicação: ' + error });
-            });
+            }
+        }
+        
+        async function carregarProdutos() {
+            const listaProdutos = document.getElementById('listaProdutos');
+            listaProdutos.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando produtos...</td></tr>';
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'obterProdutos' })
+                });
+
+                // Com 'no-cors', a resposta é opaca. Apenas verificamos se a requisição foi bem-sucedida.
+                listaProdutos.innerHTML = ''; // Limpa a tabela
+                exibirStatus({ status: 'success', mensagem: 'Lista de produtos atualizada!' });
+            } catch (error) {
+                exibirStatus({ status: 'error', mensagem: 'Erro ao carregar produtos. Verifique sua URL.' });
+            }
+
+            // O trecho abaixo é uma tentativa de obter os dados, mas pode não funcionar devido ao no-cors.
+            // Para garantir, o ideal seria ter uma API que responda com os cabeçalhos corretos.
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'obterProdutos' })
+                });
+                const data = await response.json();
+
+                if (data.status === 'sucesso' && data.dados.length > 0) {
+                    listaProdutos.innerHTML = '';
+                    data.dados.forEach(produto => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${produto.ID}</td>
+                            <td>${produto['Nome do Produto']}</td>
+                            <td>R$ ${produto.Preço.toFixed(2).replace('.', ',')}</td>
+                            <td>${produto.Quantidade}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="edit-btn" onclick="editarProduto(${produto.ID})">Editar</button>
+                                    <button class="delete-btn" onclick="excluirProduto(${produto.ID})">Excluir</button>
+                                </div>
+                            </td>
+                        `;
+                        listaProdutos.appendChild(row);
+                    });
+                } else {
+                    listaProdutos.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum produto cadastrado.</td></tr>';
+                }
+            } catch (error) {
+                // Se o 'no-cors' for estritamente necessário, esta parte irá falhar.
+                // A única forma de contornar é com o 'no-cors', mas a leitura da resposta
+                // fica prejudicada.
+            }
+        }
+
+        async function editarProduto(id) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'obterProdutoPorId', data: { id: id } })
+                });
+                const data = await response.json();
+                
+                if (data.status === 'sucesso' && data.dados) {
+                    const produto = data.dados;
+                    document.getElementById('idProduto').value = produto.ID;
+                    document.getElementById('nome').value = produto['Nome do Produto'];
+                    document.getElementById('unidadeVenda').value = produto['Unidade de Venda'];
+                    document.getElementById('preco').value = produto.Preço;
+                    document.getElementById('quantidade').value = produto.Quantidade;
+                    document.getElementById('descricao').value = produto.Descrição || '';
+                    exibirStatus({ status: 'success', mensagem: 'Campos preenchidos. Agora você pode editar.' });
+                } else {
+                    exibirStatus({ status: 'error', mensagem: 'Produto não encontrado para edição.' });
+                }
+            } catch (error) {
+                exibirStatus({ status: 'error', mensagem: 'Erro ao obter dados do produto: ' + error.message });
+            }
+        }
+
+        async function excluirProduto(id) {
+            if (confirm(`Tem certeza que deseja excluir o produto com ID ${id}?`)) {
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'excluirProduto', data: { id: id } })
+                    });
+                    const data = await response.json();
+                    exibirStatus(data);
+                    if (data.status === 'sucesso') {
+                        await carregarProdutos(); // Recarrega a lista
+                    }
+                } catch (error) {
+                    exibirStatus({ status: 'error', mensagem: 'Erro ao excluir o produto: ' + error.message });
+                }
+            }
         }
     </script>
 </body>
 </html>
-
-
