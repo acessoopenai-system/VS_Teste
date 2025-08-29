@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>Lançar Venda</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f2f5;
             color: #333;
-            padding: 20px;
+            min-height: 100vh;
         }
         .container {
             max-width: 500px;
@@ -74,51 +75,133 @@
             color: #c62828;
             border: 1px solid #ef9a9a;
         }
+
+        /* Estilos do menu de navegação */
+        .desktop-sidebar {
+            display: none;
+            width: 256px;
+            background-color: #1f2937;
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 768px) {
+            .desktop-sidebar {
+                display: flex;
+                flex-direction: column;
+            }
+            .main-content {
+                margin-left: 256px;
+            }
+        }
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .sidebar-nav {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: #d1d5db;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-link:hover {
+            background-color: #374151;
+            color: #fff;
+        }
+        .nav-link.active {
+            background-color: #4b5563;
+            color: #fff;
+        }
+        .nav-link svg {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Lançar Nova Venda</h2>
-        <form id="vendaForm">
-            <div class="form-group">
-                <label for="produto">Produto</label>
-                <select id="produto" required>
-                    <option value="">Carregando produtos...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="quantidade">Quantidade Vendida</label>
-                <input type="number" id="quantidade" step="any" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="precoUnitario">Preço Unitário (R$)</label>
-                <input type="number" id="precoUnitario" step="0.01" min="0" readonly>
-            </div>
-            <div class="form-group">
-                <label for="subtotal">Subtotal (R$)</label>
-                <input type="number" id="subtotal" step="0.01" min="0" readonly>
-            </div>
-            <div class="form-group">
-                <label for="descontoPercentual">Desconto (%)</label>
-                <input type="number" id="descontoPercentual" step="0.01" min="0" max="100" value="0">
-            </div>
-            <div class="form-group">
-                <label for="descontoReal">Desconto (R$)</label>
-                <input type="number" id="descontoReal" step="0.01" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label for="totalComDesconto">Total com Desconto (R$)</label>
-                <input type="number" id="totalComDesconto" step="0.01" min="0" readonly>
-            </div>
-            <div class="form-group">
-                <label for="usuario">Usuário</label>
-                <input type="text" id="usuario" value="Usuário Padrão" required>
-            </div>
-            <button type="submit" class="btn">Lançar Venda</button>
-        </form>
-        <div id="statusMessage"></div>
-    </div>
 
+    <aside id="desktop-sidebar" class="desktop-sidebar hidden md:flex flex-col">
+        <div class="sidebar-header">
+            Sistema de Vendas
+        </div>
+        <nav id="desktop-nav" class="sidebar-nav flex-1">
+            <a href="index.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Início</span>
+            </a>
+            <a href="Vendas.html" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Vendas</span>
+            </a>
+            <a href="Produtos.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8H3a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path><path d="M3 10v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-14a2 2 0 0 0-2 2z"></path><rect x="1" y="4" width="22" height="6" rx="2" ry="2"></rect><rect x="1" y="14" width="22" height="6" rx="2" ry="2"></rect></svg>
+                <span>Produtos</span>
+            </a>
+            <a href="Relatorios.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v9H3z"></path><path d="M14 3h7v5h-7z"></path><path d="M14 12h7v9h-7z"></path><path d="M3 16h7v5h-7z"></path></svg>
+                <span>Relatórios</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content p-4 md:p-8 overflow-y-auto">
+        <div class="container">
+            <h2>Lançar Nova Venda</h2>
+            <form id="vendaForm">
+                <div class="form-group">
+                    <label for="produto">Produto</label>
+                    <select id="produto" required>
+                        <option value="">Carregando produtos...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantidade">Quantidade Vendida</label>
+                    <input type="number" id="quantidade" step="any" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="precoUnitario">Preço Unitário (R$)</label>
+                    <input type="number" id="precoUnitario" step="0.01" min="0" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="subtotal">Subtotal (R$)</label>
+                    <input type="number" id="subtotal" step="0.01" min="0" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="descontoPercentual">Desconto (%)</label>
+                    <input type="number" id="descontoPercentual" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="descontoReal">Desconto (R$)</label>
+                    <input type="number" id="descontoReal" step="0.01" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="totalComDesconto">Total com Desconto (R$)</label>
+                    <input type="number" id="totalComDesconto" step="0.01" min="0" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="usuario">Usuário</label>
+                    <input type="text" id="usuario" value="Usuário Padrão" required>
+                </div>
+                <button type="submit" class="btn">Lançar Venda</button>
+            </form>
+            <div id="statusMessage"></div>
+        </div>
+    </main>
+    
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk0fSauvjEwhlq_DDRb21wHtH5qcFAs6j3XfJrHQlbW_d8qshOiEuX8lJfKQpHhZet/exec'; // COLOQUE A URL DO SEU APPS SCRIPT AQUI!
         let produtos = [];
