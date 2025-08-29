@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <base target="_top">
+    <meta charset="UTF-8">
+    <title>Lançar Venda</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -11,7 +12,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 400px;
             margin: 0 auto;
             background-color: #fff;
             padding: 30px;
@@ -40,24 +41,19 @@
             box-sizing: border-box;
             font-size: 14px;
         }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        #btnLancarVenda {
+        .btn {
             width: 100%;
             padding: 12px;
-            background-color: #27ae60;
-            color: #fff;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            background-color: #27ae60;
+            color: #fff;
             transition: background-color 0.3s;
-            margin-top: 10px;
         }
-        #btnLancarVenda:hover {
+        .btn:hover {
             background-color: #219d54;
         }
         #statusMessage {
@@ -83,124 +79,38 @@
 <body>
     <div class="container">
         <h2>Lançar Nova Venda</h2>
-        <div class="form-group">
-            <label for="produto">Produto</label>
-            <select id="produto"></select>
-        </div>
-        <div class="form-group">
-            <label for="quantidade">Quantidade Vendida</label>
-            <input type="number" id="quantidade" step="any">
-        </div>
-        <div class="form-group">
-            <label for="subtotal">Subtotal</label>
-            <input type="text" id="subtotal" readonly>
-        </div>
-        <div class="form-group">
-            <label for="descontoPorcentagem">Desconto (%)</label>
-            <input type="number" id="descontoPorcentagem" value="0" step="any">
-        </div>
-        <div class="form-group">
-            <label for="descontoReais">Desconto (R$)</label>
-            <input type="number" id="descontoReais" value="0" step="any">
-        </div>
-        <div class="form-group">
-            <label for="totalComDesconto">Total com Desconto</label>
-            <input type="text" id="totalComDesconto" readonly>
-        </div>
-        <button id="btnLancarVenda">Registrar Venda</button>
+        <form id="vendaForm">
+            <div class="form-group">
+                <label for="produto">Nome do Produto</label>
+                <select id="produto" required>
+                    <option value="">Carregando produtos...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade</label>
+                <input type="number" id="quantidade" step="any" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="total">Valor Total (R$)</label>
+                <input type="number" id="total" step="0.01" min="0" required>
+            </div>
+            <button type="submit" class="btn">Lançar Venda</button>
+        </form>
         <div id="statusMessage"></div>
     </div>
+
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk0fSauvjEwhlq_DDRb21wHtH5qcFAs6j3XfJrHQlbW_d8qshOiEuX8lJfKQpHhZet/exec'; // Cole a URL da API aqui
-        var produtos = {};
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk0fSauvjEwhlq_DDRb21wHtH5qcFAs6j3XfJrHQlbW_d8qshOiEuX8lJfKQpHhZet/exec'; // COLOQUE A URL DO SEU APPS SCRIPT AQUI!
         
         document.addEventListener('DOMContentLoaded', function() {
             if(SCRIPT_URL === '') {
-                exibirStatus({ status: 'error', mensagem: 'Por favor, cole a URL da API no código.' });
+                exibirStatus({ status: 'error', mensagem: 'Por favor, cole a URL do Apps Script no código.' });
                 return;
             }
+            
             carregarProdutos();
+            document.getElementById('vendaForm').addEventListener('submit', lancarVenda);
         });
-
-        document.getElementById('produto').addEventListener('change', atualizarValores);
-        document.getElementById('quantidade').addEventListener('input', atualizarValores);
-        document.getElementById('descontoPorcentagem').addEventListener('input', atualizarValores);
-        document.getElementById('descontoReais').addEventListener('input', atualizarValores);
-
-        document.getElementById('btnLancarVenda').addEventListener('click', function() {
-            const produtoSelecionado = document.getElementById('produto').value;
-            const quantidade = parseFloat(document.getElementById('quantidade').value);
-            const total = parseFloat(document.getElementById('totalComDesconto').value.replace(',', '.'));
-            
-            if (!produtoSelecionado || isNaN(quantidade) || quantidade <= 0) {
-                exibirStatus({ status: 'error', mensagem: 'Por favor, preencha o produto e a quantidade.' });
-                return;
-            }
-
-            const dadosVenda = {
-                produto: produtoSelecionado,
-                quantidade: quantidade,
-                total: total
-            };
-
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'lancarVenda', data: dadosVenda })
-            })
-            .then(response => response.json())
-            .then(data => exibirStatus(data))
-            .catch(error => exibirStatus({ status: 'error', mensagem: 'Erro de comunicação: ' + error }));
-        });
-
-        function carregarProdutos() {
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'obterProdutos' })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'sucesso') {
-                    const select = document.getElementById('produto');
-                    select.innerHTML = '';
-                    if (data.dados.length === 0) {
-                        const option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'Nenhum produto cadastrado';
-                        select.appendChild(option);
-                        return;
-                    }
-                    data.dados.forEach(p => {
-                        const [id, nome, unidadeVenda, preco] = p;
-                        produtos[nome] = { preco: preco, id: id };
-                        const option = document.createElement('option');
-                        option.value = nome;
-                        option.textContent = `${nome} (R$${preco.toFixed(2).replace('.', ',')})`;
-                        select.appendChild(option);
-                    });
-                    atualizarValores();
-                } else {
-                    exibirStatus(data);
-                }
-            })
-            .catch(error => exibirStatus({ status: 'error', mensagem: 'Erro ao carregar produtos: ' + error }));
-        }
-
-        function atualizarValores() {
-            const produtoSelecionado = document.getElementById('produto').value;
-            const quantidade = parseFloat(document.getElementById('quantidade').value);
-            const preco = produtos[produtoSelecionado] ? produtos[produtoSelecionado].preco : 0;
-            const subtotal = quantidade * preco;
-            
-            document.getElementById('subtotal').value = subtotal.toFixed(2).replace('.', ',');
-
-            const descontoPorcentagem = parseFloat(document.getElementById('descontoPorcentagem').value) || 0;
-            const descontoReais = parseFloat(document.getElementById('descontoReais').value) || 0;
-            
-            const totalComDesconto = subtotal - (subtotal * (descontoPorcentagem / 100)) - descontoReais;
-            document.getElementById('totalComDesconto').value = totalComDesconto.toFixed(2).replace('.', ',');
-        }
 
         function exibirStatus(resposta) {
             var statusMessage = document.getElementById('statusMessage');
@@ -214,12 +124,60 @@
                 statusMessage.style.display = 'none';
             }, 5000);
         }
+        
+        async function lancarVenda(event) {
+            event.preventDefault();
+            
+            const venda = {
+                produto: document.getElementById('produto').value,
+                quantidade: parseFloat(document.getElementById('quantidade').value),
+                total: parseFloat(document.getElementById('total').value)
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'lancarVenda', data: venda })
+                });
+
+                const data = await response.json();
+                exibirStatus(data);
+                if (data.status === 'sucesso') {
+                    document.getElementById('vendaForm').reset();
+                }
+            } catch (error) {
+                exibirStatus({ status: 'error', mensagem: 'Erro de comunicação: ' + error });
+            }
+        }
+        
+        async function carregarProdutos() {
+            const produtoSelect = document.getElementById('produto');
+            produtoSelect.innerHTML = '<option value="">Carregando produtos...</option>';
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'obterProdutosUnicos' })
+                });
+                const data = await response.json();
+
+                produtoSelect.innerHTML = '';
+                if (data.status === 'sucesso' && data.dados.length > 0) {
+                    data.dados.forEach(produto => {
+                        const option = document.createElement('option');
+                        option.value = produto;
+                        option.textContent = produto;
+                        produtoSelect.appendChild(option);
+                    });
+                } else {
+                    produtoSelect.innerHTML = '<option value="">Nenhum produto encontrado</option>';
+                    exibirStatus({ status: 'error', mensagem: 'Nenhum produto encontrado. Cadastre um produto primeiro.' });
+                }
+            } catch (error) {
+                exibirStatus({ status: 'error', mensagem: 'Erro ao carregar produtos: ' + error.message });
+                produtoSelect.innerHTML = '<option value="">Erro ao carregar produtos</option>';
+            }
+        }
     </script>
 </body>
 </html>
-
-
-
-
-
-
