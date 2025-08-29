@@ -104,7 +104,7 @@
             </div>
             <div class="form-group">
                 <label for="descontoReal">Desconto (R$)</label>
-                <input type="number" id="descontoReal" step="0.01" min="0" readonly>
+                <input type="number" id="descontoReal" step="0.01" min="0" value="0">
             </div>
             <div class="form-group">
                 <label for="totalComDesconto">Total com Desconto (R$)</label>
@@ -133,7 +133,8 @@
             document.getElementById('vendaForm').addEventListener('submit', lancarVenda);
             document.getElementById('produto').addEventListener('change', atualizarCampos);
             document.getElementById('quantidade').addEventListener('input', atualizarCampos);
-            document.getElementById('descontoPercentual').addEventListener('input', atualizarCampos);
+            document.getElementById('descontoPercentual').addEventListener('input', () => atualizarCampos('percentual'));
+            document.getElementById('descontoReal').addEventListener('input', () => atualizarCampos('real'));
         });
 
         function exibirStatus(resposta) {
@@ -211,7 +212,7 @@
             }
         }
 
-        function atualizarCampos() {
+        function atualizarCampos(origem) {
             const produtoSelect = document.getElementById('produto');
             const quantidadeInput = document.getElementById('quantidade');
             const precoUnitarioInput = document.getElementById('precoUnitario');
@@ -223,15 +224,26 @@
             const produtoSelecionado = produtos.find(p => p.Nome === produtoSelect.value);
             const quantidade = parseFloat(quantidadeInput.value) || 0;
             const precoUnitario = produtoSelecionado ? produtoSelecionado.Preço : 0;
-            const descontoPercentual = parseFloat(descontoPercentualInput.value) || 0;
-
+            
             precoUnitarioInput.value = precoUnitario.toFixed(2);
             
             const subtotal = quantidade * precoUnitario;
             subtotalInput.value = subtotal.toFixed(2);
             
-            const descontoReal = subtotal * (descontoPercentual / 100);
-            descontoRealInput.value = descontoReal.toFixed(2);
+            let descontoPercentual = parseFloat(descontoPercentualInput.value) || 0;
+            let descontoReal = parseFloat(descontoRealInput.value) || 0;
+
+            if (origem === 'percentual') {
+                descontoReal = subtotal * (descontoPercentual / 100);
+                descontoRealInput.value = descontoReal.toFixed(2);
+            } else if (origem === 'real') {
+                if (subtotal > 0) {
+                    descontoPercentual = (descontoReal / subtotal) * 100;
+                    descontoPercentualInput.value = descontoPercentual.toFixed(2);
+                } else {
+                    descontoPercentualInput.value = 0;
+                }
+            }
             
             const totalComDesconto = subtotal - descontoReal;
             totalComDescontoInput.value = totalComDesconto.toFixed(2);
@@ -239,4 +251,3 @@
     </script>
 </body>
 </html>
-
