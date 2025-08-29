@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <base target="_top">
+    <meta charset="UTF-8">
+    <title>Gerenciar Produtos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f2f5;
             color: #333;
-            padding: 20px;
+            min-height: 100vh;
         }
         .container {
             max-width: 900px;
@@ -110,61 +112,165 @@
             background-color: #e74c3c;
             color: #fff;
         }
+
+        /* Estilos do menu de navegação */
+        .desktop-sidebar {
+            display: none; /* Inicia oculto e será exibido por uma media query */
+            width: 256px;
+            background-color: #1f2937;
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 768px) {
+            .desktop-sidebar {
+                display: flex;
+                flex-direction: column;
+            }
+            .main-content {
+                margin-left: 256px;
+            }
+        }
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #374151;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .sidebar-nav {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: #d1d5db;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-link:hover {
+            background-color: #374151;
+            color: #fff;
+        }
+        .nav-link.active {
+            background-color: #4b5563;
+            color: #fff;
+        }
+        .nav-link svg {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
+        .mobile-header {
+            background-color: #f0f2f5;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .mobile-menu-btn {
+            padding: 8px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Cadastrar Produto</h2>
-        <form id="produtoForm">
-            <input type="hidden" id="idProduto" value="">
-            <div class="form-group">
-                <label for="nome">Nome do Produto</label>
-                <input type="text" id="nome" required>
-            </div>
-            <div class="form-group">
-                <label for="unidadeVenda">Unidade de Venda</label>
-                <input type="text" id="unidadeVenda" required>
-            </div>
-            <div class="form-group">
-                <label for="preco">Preço (R$)</label>
-                <input type="number" id="preco" step="0.01" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="quantidade">Quantidade em Estoque</label>
-                <input type="number" id="quantidade" step="any" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="descricao">Descrição</label>
-                <input type="text" id="descricao">
-            </div>
-            <button type="submit" class="btn">Cadastrar Produto</button>
-        </form>
-        <div id="statusMessage"></div>
 
-        <div class="table-container">
-            <h3>Produtos Cadastrados</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID do Produto</th>
-                        <th>Nome</th>
-                        <th>Unidade de Venda</th>
-                        <th>Preço</th>
-                        <th>Quantidade</th>
-                        <th>Descrição</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="listaProdutos">
-                    <tr><td colspan="7" style="text-align:center;">Carregando produtos...</td></tr>
-                </tbody>
-            </table>
+    <aside id="desktop-sidebar" class="desktop-sidebar hidden md:flex flex-col">
+        <div class="sidebar-header">
+            Sistema de Vendas
         </div>
-    </div>
+        <nav id="desktop-nav" class="sidebar-nav flex-1">
+            <a href="index.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Início</span>
+            </a>
+            <a href="Vendas.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Vendas</span>
+            </a>
+            <a href="Produtos.html" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8H3a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"></path><path d="M3 10v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-14a2 2 0 0 0-2 2z"></path><rect x="1" y="4" width="22" height="6" rx="2" ry="2"></rect><rect x="1" y="14" width="22" height="6" rx="2" ry="2"></rect></svg>
+                <span>Produtos</span>
+            </a>
+            <a href="Relatorios.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v9H3z"></path><path d="M14 3h7v5h-7z"></path><path d="M14 12h7v9h-7z"></path><path d="M3 16h7v5h-7z"></path></svg>
+                <span>Relatórios</span>
+            </a>
+        </nav>
+    </aside>
 
+    <main class="main-content p-4 md:p-8 overflow-y-auto">
+        <div class="container">
+            <h2>Cadastrar Produto</h2>
+            <form id="produtoForm">
+                <input type="hidden" id="idProduto" value="">
+                <div class="form-group">
+                    <label for="nome">Nome do Produto</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="unidadeVenda">Unidade de Venda</label>
+                    <input type="text" id="unidadeVenda" required>
+                </div>
+                <div class="form-group">
+                    <label for="preco">Preço (R$)</label>
+                    <input type="number" id="preco" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantidade">Quantidade em Estoque</label>
+                    <input type="number" id="quantidade" step="any" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <input type="text" id="descricao">
+                </div>
+                <button type="submit" class="btn">Cadastrar Produto</button>
+            </form>
+            <div id="statusMessage"></div>
+    
+            <div class="table-container">
+                <h3>Produtos Cadastrados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID do Produto</th>
+                            <th>Nome</th>
+                            <th>Unidade de Venda</th>
+                            <th>Preço</th>
+                            <th>Quantidade</th>
+                            <th>Descrição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaProdutos">
+                        <tr><td colspan="7" style="text-align:center;">Carregando produtos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk0fSauvjEwhlq_DDRb21wHtH5qcFAs6j3XfJrHQlbW_d8qshOiEuX8lJfKQpHhZet/exec'; // COLOQUE A URL DO SEU APPS SCRIPT AQUI!
-
+    
         document.addEventListener('DOMContentLoaded', function() {
             if(SCRIPT_URL === '') {
                 exibirStatus({ status: 'error', mensagem: 'Por favor, cole a URL do Apps Script no código.' });
@@ -173,7 +279,7 @@
             document.getElementById('produtoForm').addEventListener('submit', salvarProduto);
             carregarProdutos();
         });
-
+    
         function exibirStatus(resposta) {
             var statusMessage = document.getElementById('statusMessage');
             statusMessage.textContent = resposta.mensagem;
@@ -186,7 +292,7 @@
                 statusMessage.style.display = 'none';
             }, 5000);
         }
-
+    
         async function salvarProduto(event) {
             event.preventDefault();
             
@@ -198,13 +304,13 @@
                 quantidade: parseFloat(document.getElementById('quantidade').value),
                 descricao: document.getElementById('descricao').value
             };
-
+    
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'salvarProduto', data: produto })
                 });
-
+    
                 const data = await response.json();
                 exibirStatus(data);
                 
@@ -213,7 +319,7 @@
                     document.getElementById('idProduto').value = '';
                     await carregarProdutos();
                 }
-
+    
             } catch (error) {
                 exibirStatus({ status: 'error', mensagem: 'Erro de comunicação: ' + error });
             }
@@ -222,19 +328,18 @@
         async function carregarProdutos() {
             const listaProdutos = document.getElementById('listaProdutos');
             listaProdutos.innerHTML = '<tr><td colspan="7" style="text-align:center;">Carregando produtos...</td></tr>';
-
+    
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'obterProdutos' })
                 });
                 const data = await response.json();
-
+    
                 if (data.status === 'sucesso' && data.dados.length > 0) {
                     listaProdutos.innerHTML = '';
                     data.dados.forEach(produto => {
                         const row = document.createElement('tr');
-                        // Corrigindo os nomes das propriedades para corresponder à sua planilha
                         row.innerHTML = `
                             <td>${produto['ID do Produto']}</td>
                             <td>${produto.Nome}</td>
@@ -259,7 +364,7 @@
                 listaProdutos.innerHTML = '<tr><td colspan="7" style="text-align:center;">Erro ao carregar produtos.</td></tr>';
             }
         }
-
+    
         async function editarProduto(id) {
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -284,7 +389,7 @@
                 exibirStatus({ status: 'error', mensagem: 'Erro ao obter dados do produto: ' + error.message });
             }
         }
-
+    
         async function excluirProduto(id) {
             if (confirm(`Tem certeza que deseja excluir o produto com ID ${id}?`)) {
                 try {
@@ -305,4 +410,3 @@
     </script>
 </body>
 </html>
-
